@@ -1,0 +1,18 @@
+# EcoSync Sentinel - Python Dependencies
+# Production-grade requirements for Pathway-powered real-time AI system
+
+# Core Framework
+pathway
+fastapi
+uvicorn
+
+# Data Processing & Analysis
+#numpy>=1.22.0
+#pandas>=1.5.0
+
+# Connectivity & Utilities
+#requests>=2.28.0
+#python-dotenv>=1.0.0
+
+# Type Checking & Validation
+#typing-extensions>=4.0.0
