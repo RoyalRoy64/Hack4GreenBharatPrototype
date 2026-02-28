@@ -2,152 +2,171 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>EcoSync Monitoring Dashboard</title>
+<title>EcoSync Sentinel</title>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  padding: 30px;
-  color: #2d3748;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg,#6a82fb,#8f5bd6);
+    min-height:100vh;
+    padding:40px;
 }
 
 .container {
-  max-width: 1400px;
-  margin: 0 auto;
+    max-width:1400px;
+    margin:auto;
 }
 
+/* HEADER */
 header {
-  text-align: center;
-  color: white;
-  margin-bottom: 40px;
+    text-align:center;
+    color:white;
+    margin-bottom:30px;
 }
 
 header h1 {
-  font-size: 2.8rem;
-  font-weight: 700;
+    font-size:3rem;
+    font-weight:700;
 }
 
 header p {
-  opacity: 0.9;
-  margin-top: 8px;
+    margin-top:8px;
+    opacity:0.9;
 }
 
+/* CONTROL BAR */
+.controls {
+    background:#f4f4f7;
+    padding:20px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    margin-bottom:30px;
+    flex-wrap:wrap;
+}
+
+.controls-left {
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+button {
+    background:#6a82fb;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:0.95rem;
+    transition:0.2s ease;
+}
+
+button:hover { background:#5a72e5; }
+
+button.secondary {
+    background:#9aa0b8;
+}
+
+button.secondary:hover {
+    background:#7f859e;
+}
+
+.status-indicator {
+    font-weight:600;
+}
+
+.status-dot {
+    display:inline-block;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    margin-right:6px;
+}
+
+.connected { background:#16a34a; }
+.connecting { background:#f59e0b; }
+.disconnected { background:#dc2626; }
+
+/* CARDS */
 .dashboard {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-  gap: 25px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
+    gap:25px;
 }
 
 .card {
-  background: white;
-  border-radius: 16px;
-  padding: 25px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 25px 50px rgba(0,0,0,0.12);
+    background:#f4f4f7;
+    padding:25px;
+    border-radius:14px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    min-height:200px;
 }
 
 .card h2 {
-  font-size: 1.3rem;
-  margin-bottom: 20px;
-  color: #667eea;
-  font-weight: 600;
+    font-size:1.2rem;
+    margin-bottom:15px;
+    border-bottom:2px solid #6a82fb;
+    padding-bottom:8px;
+    color:#4b5563;
 }
 
+/* METRICS */
 .metric {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #f0f0f0;
+    display:flex;
+    justify-content:space-between;
+    padding:8px 0;
+    font-size:0.95rem;
 }
 
-.metric:last-child {
-  border-bottom: none;
+.metric strong {
+    font-weight:600;
 }
 
-.metric-label {
-  font-weight: 500;
-}
-
-.metric-value {
-  font-weight: 700;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 6px 14px;
-  border-radius: 30px;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.status-healthy {
-  background: #e6fffa;
-  color: #047857;
-}
-
-.status-degraded {
-  background: #fff7ed;
-  color: #b45309;
-}
-
-.status-critical {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
+/* ALERTS */
 .alert-item {
-  padding: 14px;
-  border-radius: 10px;
-  margin-bottom: 12px;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:10px;
+    font-size:0.9rem;
 }
 
 .alert-high {
-  background: #fee2e2;
-  border-left: 5px solid #dc2626;
+    background:#fee2e2;
+    border-left:4px solid #dc2626;
 }
 
 .alert-medium {
-  background: #fff7ed;
-  border-left: 5px solid #f59e0b;
+    background:#fef3c7;
+    border-left:4px solid #f59e0b;
 }
 
 .alert-low {
-  background: #ecfdf5;
-  border-left: 5px solid #10b981;
+    background:#dcfce7;
+    border-left:4px solid #16a34a;
 }
 
+/* EMISSIONS */
 .emission-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
+    display:flex;
+    justify-content:space-between;
+    padding:6px 0;
 }
 
 .timestamp {
-  text-align: center;
-  margin-top: 30px;
-  color: white;
-  opacity: 0.85;
-  font-size: 0.9rem;
+    text-align:center;
+    margin-top:25px;
+    color:white;
+    opacity:0.85;
+    font-size:0.9rem;
 }
 
-@media (max-width: 768px) {
-  body { padding: 15px; }
-  header h1 { font-size: 2rem; }
+@media(max-width:768px){
+    body { padding:20px; }
 }
 </style>
 </head>
@@ -157,122 +176,156 @@ header p {
 <div class="container">
 
 <header>
-  <h1>EcoSync Monitoring Dashboard</h1>
-  <p>Real-time Industrial Machine Health & Emission Analytics</p>
+    <h1>🌿 EcoSync Sentinel</h1>
+    <p>Real-time AI for Green Manufacturing</p>
 </header>
+
+<div class="controls">
+    <div class="controls-left">
+        <button onclick="manualRefresh()">🔄 Refresh Now</button>
+        <button onclick="toggleAuto()" id="autoBtn">⏱ Enable Auto-Refresh</button>
+        <button class="secondary" onclick="clearAlerts()">🗑 Clear Alerts</button>
+    </div>
+
+    <div class="status-indicator">
+        API Status:
+        <span class="status-dot connecting" id="apiDot"></span>
+        <span id="apiStatusText">Connecting...</span>
+    </div>
+</div>
 
 <div class="dashboard">
 
-  <div class="card">
-    <h2>System Status</h2>
-    <div id="status-health"></div>
-    <div id="status-details"></div>
-  </div>
+    <div class="card">
+        <h2>📊 System Status</h2>
+        <div id="status-content">Loading...</div>
+    </div>
 
-  <div class="card">
-    <h2>Active Alerts</h2>
-    <div id="alerts-list">No alerts</div>
-  </div>
+    <div class="card">
+        <h2>🚨 Recent Alerts</h2>
+        <div id="alerts-content">Loading...</div>
+    </div>
 
-  <div class="card">
-    <h2>Machine Emissions</h2>
-    <div id="emissions-list">No data</div>
-  </div>
+    <div class="card">
+        <h2>🌍 Carbon Emissions</h2>
+        <div id="emissions-content">Loading...</div>
+    </div>
 
 </div>
 
-<div class="timestamp" id="last-update">Waiting for data...</div>
+<div class="timestamp" id="lastUpdate">Waiting for data...</div>
 
 </div>
 
 <script>
-(() => {
+let autoRefresh = false;
+let autoInterval = null;
+let cachedAlerts = [];
 
-const alertsList = document.getElementById("alerts-list");
-const emissionsList = document.getElementById("emissions-list");
-const statusHealth = document.getElementById("status-health");
-const statusDetails = document.getElementById("status-details");
-const lastUpdate = document.getElementById("last-update");
+const apiDot = document.getElementById("apiDot");
+const apiStatusText = document.getElementById("apiStatusText");
+
+function setApiStatus(state) {
+    apiDot.className = "status-dot " + state;
+    apiStatusText.textContent = state.charAt(0).toUpperCase() + state.slice(1);
+}
 
 function renderStatus(status) {
-  if (!status) return;
-
-  let cls = "status-healthy";
-  if (status.system_health === "DEGRADED") cls = "status-degraded";
-  if (status.system_health === "CRITICAL") cls = "status-critical";
-
-  statusHealth.innerHTML =
-    `<span class="status-badge ${cls}">
-      ${status.system_health}
-     </span>`;
-
-  statusDetails.innerHTML = `
-    <div class="metric"><span class="metric-label">Active Machines</span><span class="metric-value">${status.active_machines}</span></div>
-    <div class="metric"><span class="metric-label">Total Records</span><span class="metric-value">${status.total_records_processed}</span></div>
-    <div class="metric"><span class="metric-label">Anomalies</span><span class="metric-value">${status.total_anomalies_detected}</span></div>
-    <div class="metric"><span class="metric-label">Avg CO₂ / Machine</span><span class="metric-value">${Number(status.avg_co2_per_machine || 0).toFixed(3)} kg</span></div>
-  `;
+    if(!status) return;
+    document.getElementById("status-content").innerHTML = `
+        <div class="metric"><span>System Health</span><strong>${status.system_health}</strong></div>
+        <div class="metric"><span>Active Machines</span><strong>${status.active_machines}</strong></div>
+        <div class="metric"><span>Total Records</span><strong>${status.total_records_processed}</strong></div>
+        <div class="metric"><span>Anomalies</span><strong>${status.total_anomalies_detected}</strong></div>
+        <div class="metric"><span>Avg CO₂ / Machine</span><strong>${Number(status.avg_co2_per_machine).toFixed(3)} kg</strong></div>
+    `;
 }
 
 function renderAlerts(alerts) {
-  alertsList.innerHTML = "";
-  if (!alerts || alerts.length === 0) {
-    alertsList.textContent = "No alerts";
-    return;
-  }
+    cachedAlerts = alerts || [];
+    const el = document.getElementById("alerts-content");
+    el.innerHTML = "";
 
-  alerts.forEach(a => {
-    let cls = "alert-low";
-    if (a.severity === "HIGH") cls = "alert-high";
-    if (a.severity === "MEDIUM") cls = "alert-medium";
+    if(!alerts || alerts.length === 0){
+        el.textContent = "No alerts";
+        return;
+    }
 
-    const d = document.createElement("div");
-    d.className = `alert-item ${cls}`;
-    d.innerHTML = `
-      <strong>${a.machine_id}</strong> — ${a.anomaly_type}<br>
-      Temp: ${a.current_temperature} | Vib: ${a.current_vibration}<br>
-      <small>${a.alert_time}</small>
-    `;
-    alertsList.appendChild(d);
-  });
+    alerts.forEach(a=>{
+        let cls="alert-low";
+        if(a.severity==="HIGH") cls="alert-high";
+        if(a.severity==="MEDIUM") cls="alert-medium";
+
+        const div=document.createElement("div");
+        div.className="alert-item "+cls;
+        div.innerHTML=`
+            <strong>${a.machine_id}</strong> — ${a.anomaly_type}<br>
+            Temp: ${a.current_temperature} | Vib: ${a.current_vibration}<br>
+            <small>${a.alert_time}</small>
+        `;
+        el.appendChild(div);
+    });
 }
 
-function renderEmissions(emissions) {
-  emissionsList.innerHTML = "";
-  if (!emissions || emissions.length === 0) {
-    emissionsList.textContent = "No data";
-    return;
-  }
-
-  emissions.forEach(e => {
-    const d = document.createElement("div");
-    d.className = "emission-row";
-    d.innerHTML = `
-      <span>${e.machine_id}</span>
-      <span><strong>${Number(e.cumulative_co2_kg).toFixed(3)} kg</strong></span>
-    `;
-    emissionsList.appendChild(d);
-  });
+function renderEmissions(emissions){
+    const el=document.getElementById("emissions-content");
+    el.innerHTML="";
+    if(!emissions||emissions.length===0){
+        el.textContent="No data";
+        return;
+    }
+    emissions.forEach(e=>{
+        const div=document.createElement("div");
+        div.className="emission-row";
+        div.innerHTML=`
+            <span>${e.machine_id}</span>
+            <strong>${Number(e.cumulative_co2_kg).toFixed(3)} kg</strong>
+        `;
+        el.appendChild(div);
+    });
 }
 
-const es = new EventSource("/api/v1/stream");
+function manualRefresh(){
+    fetchAll();
+}
 
-es.onmessage = (ev) => {
-  try {
-    const obj = JSON.parse(ev.data);
-    if (!obj || !obj.type) return;
+function toggleAuto(){
+    autoRefresh=!autoRefresh;
+    const btn=document.getElementById("autoBtn");
+    if(autoRefresh){
+        btn.textContent="⏹ Disable Auto-Refresh";
+        autoInterval=setInterval(fetchAll,3000);
+    }else{
+        btn.textContent="⏱ Enable Auto-Refresh";
+        clearInterval(autoInterval);
+    }
+}
 
-    if (obj.type === "alerts") renderAlerts(obj.data);
-    if (obj.type === "emissions") renderEmissions(obj.data);
-    if (obj.type === "status") renderStatus(obj.data);
+function clearAlerts(){
+    cachedAlerts=[];
+    renderAlerts([]);
+}
 
-    lastUpdate.textContent = "Last updated: " + (obj.last_update || new Date().toISOString());
-  } catch (e) {
-    console.error("SSE parse error", e);
-  }
+function fetchAll(){
+    fetch("/api/v1/status").then(r=>r.json()).then(renderStatus);
+    fetch("/api/v1/alerts").then(r=>r.json()).then(renderAlerts);
+    fetch("/api/v1/emissions").then(r=>r.json()).then(renderEmissions);
+}
+
+const es=new EventSource("/api/v1/stream");
+
+es.onopen=()=>setApiStatus("connected");
+es.onerror=()=>setApiStatus("disconnected");
+
+es.onmessage=(ev)=>{
+    setApiStatus("connected");
+    const obj=JSON.parse(ev.data);
+    if(obj.type==="status") renderStatus(obj.data);
+    if(obj.type==="alerts") renderAlerts(obj.data);
+    if(obj.type==="emissions") renderEmissions(obj.data);
+    document.getElementById("lastUpdate").textContent=
+        "Last updated: "+(obj.last_update||new Date().toISOString());
 };
-
-})();
 </script>
 
 </body>
