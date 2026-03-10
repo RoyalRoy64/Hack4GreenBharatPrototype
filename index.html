@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoSync Sentinel - Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-page="dashboard">
+  <!-- Emergency Banner -->
+  <div id="emergency-banner" class="emergency-banner hidden">
+    <div class="emergency-banner-content">
+      <span id="emergency-banner-text">CRITICAL ALERT</span>
+      <button id="emergency-banner-ack" class="btn btn-ack">Acknowledge</button>
+    </div>
+  </div>
+
+  <div class="app-shell">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-accent"></div>
+        <span class="sidebar-title">EcoSync<br />Sentinel</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/" class="nav-link active">Dashboard</a>
+        <a href="/diagnostics" class="nav-link">Asset Diagnostics</a>
+        <a href="/maintenance" class="nav-link">Maintenance &amp; Inventory</a>
+      </nav>
+      <!-- <nav class="sidebar-nav">
+        <a href="index.html" class="nav-link active">Dashboard</a>
+        <a href="diagnostics.html" class="nav-link">Asset Diagnostics</a>
+        <a href="maintenance.html" class="nav-link">Maintenance &amp; Inventory</a>
+      </nav> -->
+    </aside>
+
+    <div class="main-area">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div class="top-bar-left">
+          <h1 class="top-title">EcoSync Sentinel</h1>
+        </div>
+        <div class="top-bar-right">
+          <div class="connection-indicator">
+            <span id="connection-dot" class="dot dot-disconnected"></span>
+            <span class="connection-label">SSE Link</span>
+          </div>
+          <div class="system-time">
+            <span class="system-time-label">System Time</span>
+            <span id="system-time-value">--:--:--</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Dashboard Content -->
+      <main class="content dashboard-content">
+        <!-- KPI Tiles -->
+        <section class="kpi-grid">
+          <div class="kpi-card" data-kpi="health">
+            <h2>System Health Score</h2>
+            <p class="kpi-value" id="kpi-health">--%</p>
+          </div>
+          <div class="kpi-card" data-kpi="co2">
+            <h2>Estimated CO₂ Footprint</h2>
+            <p class="kpi-value" id="kpi-co2">-- kg</p>
+          </div>
+          <div class="kpi-card" data-kpi="critical-alerts">
+            <h2>Active Critical Alerts</h2>
+            <p class="kpi-value" id="kpi-critical-alerts">0</p>
+          </div>
+          <div class="kpi-card" data-kpi="machines-online">
+            <h2>Total Machines Online</h2>
+            <p class="kpi-value" id="kpi-machines-online">0</p>
+          </div>
+        </section>
+
+        <!-- Middle Section: Machine Workflow Diagram -->
+        <section class="workflow-section">
+          <h2 class="section-title">Machine Workflow</h2>
+          <div class="workflow-diagram">
+            <button class="node node-green" data-machine-id="CNC_1">CNC_1</button>
+            <span class="workflow-arrow">→</span>
+            <button class="node node-green" data-machine-id="Conveyor_2">Conveyor_2</button>
+            <span class="workflow-arrow">→</span>
+            <button class="node node-green" data-machine-id="Packaging_3">Packaging_3</button>
+          </div>
+        </section>
+
+        <!-- Bottom Section -->
+        <section class="bottom-grid">
+          <!-- Telemetry Terminal -->
+          <div class="panel telemetry-panel">
+            <div class="panel-header">
+              <h2>Live Telemetry Terminal</h2>
+            </div>
+            <div id="telemetry-terminal" class="terminal-window"></div>
+          </div>
+
+          <!-- Actionable Task List -->
+          <div class="panel tasks-panel">
+            <div class="panel-header">
+              <h2>Actionable Tasks</h2>
+            </div>
+            <div id="task-list" class="task-list">
+              <!-- Tasks populated by JS -->
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+

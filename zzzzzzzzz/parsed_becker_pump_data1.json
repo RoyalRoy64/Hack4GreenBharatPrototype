@@ -1,0 +1,68 @@
+{
+    "operating_temperature": {
+        "min": 5.0,
+        "max": 40.0,
+        "unit": "C"
+    },
+    "sound_level_db": 75.0,
+    "maintenance": [
+        {
+            "task": "Check and clean air intake filter. A new filter should be installed if clogged or annually.",
+            "interval": "Every 40-200 Hours"
+        },
+        {
+            "task": "Grease bearings while unit is running (for applicable models).",
+            "interval": "Every 2000 Hours"
+        },
+        {
+            "task": "Inspect vanes for minimum height, improper wear, or chipping. Replace if at or close to minimum height value.",
+            "interval": "Every 3000 Hours"
+        },
+        {
+            "task": "Replace dust separation element.",
+            "interval": "Every 3000 Hours"
+        }
+    ],
+    "spare_parts": [
+        {
+            "name": "Maintenance Kit (KVT/KDT 3.60)",
+            "part_number": "338030M0000",
+            "description": "Kit includes Carbon Vanes, Grease, and Filters."
+        },
+        {
+            "name": "Maintenance Kit (DVT 3.100)",
+            "part_number": "338026M0000",
+            "description": "Kit includes Carbon Vanes, Grease, and Filters."
+        },
+        {
+            "name": "Grease tube",
+            "part_number": "96000002300",
+            "description": "For hand packing bearings on specific models (e.g., 3.60, 3.80)."
+        },
+        {
+            "name": "Pre Filled Grease gun",
+            "part_number": "74330500000",
+            "description": "For greasing models with nipples (e.g., 3.100, 3.140)."
+        },
+        {
+            "name": "Dust Separator Cartridge",
+            "part_number": "909510",
+            "description": "Part number visible in manual image on page 18."
+        },
+        {
+            "name": "Filter Cover Gasket",
+            "part_number": "to be specified manually",
+            "description": "Rubber gasket for filter housing, critical for sealing. Mentioned on page 8."
+        },
+        {
+            "name": "Drive & Non-Drive Side Bearings",
+            "part_number": "to be specified manually",
+            "description": "suggested by llm, needs review and specificaiton manually"
+        },
+        {
+            "name": "Shaft Seal",
+            "part_number": "to be specified manually",
+            "description": "suggested by llm, needs review and specificaiton manually"
+        }
+    ]
+}

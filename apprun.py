@@ -114,7 +114,7 @@ async def main():
     tasks = []
 
     # Start Pathway
-    pathway_func = resolve_callable("main", candidates=("main", "run"))
+    pathway_func = resolve_callable("pathwaydata", candidates=("run", "main"))
     if pathway_func:
         tasks.append(asyncio.create_task(
             run_blocking_function(pathway_func, "Pathway Main")

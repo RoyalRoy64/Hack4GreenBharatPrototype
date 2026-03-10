@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoSync Sentinel - Asset Diagnostics</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body data-page="diagnostics">
+  <!-- Emergency Banner -->
+  <div id="emergency-banner" class="emergency-banner hidden">
+    <div class="emergency-banner-content">
+      <span id="emergency-banner-text">CRITICAL ALERT</span>
+      <button id="emergency-banner-ack" class="btn btn-ack">Acknowledge</button>
+    </div>
+  </div>
+
+  <div class="app-shell">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-accent"></div>
+        <span class="sidebar-title">EcoSync<br />Sentinel</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/" class="nav-link">Dashboard</a>
+        <a href="/diagnostics" class="nav-link active">Asset Diagnostics</a>
+        <a href="/maintenance" class="nav-link">Maintenance &amp; Inventory</a>
+      </nav>
+      <!-- <nav class="sidebar-nav">
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="diagnostics.html" class="nav-link active">Asset Diagnostics</a>
+        <a href="maintenance.html" class="nav-link">Maintenance &amp; Inventory</a>
+      </nav> -->
+    </aside>
+
+    <div class="main-area">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div class="top-bar-left">
+          <h1 class="top-title">EcoSync Sentinel</h1>
+        </div>
+        <div class="top-bar-right">
+          <div class="connection-indicator">
+            <span id="connection-dot" class="dot dot-disconnected"></span>
+            <span class="connection-label">SSE Link</span>
+          </div>
+          <div class="system-time">
+            <span class="system-time-label">System Time</span>
+            <span id="system-time-value">--:--:--</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="content diagnostics-content">
+        <div class="diagnostics-grid">
+          <!-- Left Column: Machine List + Upload -->
+          <section class="diag-column diag-left">
+            <h2 class="section-title">Machines</h2>
+            <ul id="machine-list" class="machine-list"></ul>
+
+            <div class="upload-wrapper">
+              <div class="upload-section">
+                <h2 class="section-title">Upload Machine Manual (PDF)</h2>
+                <div id="pdf-dropzone" class="dropzone">
+                  <p>Drag &amp; drop PDF here or click to browse</p>
+                  <input type="file" id="pdf-input" accept="application/pdf" hidden />
+                </div>
+              </div>
+
+              <div id="llm-summary-container" class="llm-summary-container hidden">
+                <h2 class="section-title">LLM Parsed Summary</h2>
+                <div class="llm-summary-box">
+                  <pre id="llm-summary-content">Waiting for upload...</pre>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Center Column: Charts -->
+          <section class="diag-column diag-center">
+            <h2 class="section-title">Live Sensor Charts</h2>
+            <div class="chart-panel">
+              <h3>Temperature</h3>
+              <canvas id="chart-temperature"></canvas>
+            </div>
+            <div class="chart-panel">
+              <h3>Vibration</h3>
+              <canvas id="chart-vibration"></canvas>
+            </div>
+            <div class="chart-panel">
+              <h3>Sound (dB)</h3>
+              <canvas id="chart-sound"></canvas>
+            </div>
+          </section>
+
+          <!-- Right Column: Digital Twin Specs -->
+          <section class="diag-column diag-right">
+            <h2 class="section-title">Digital Twin Specs</h2>
+            <div id="digital-twin" class="digital-twin">
+              <div class="dt-row">
+                <span class="dt-label">Machine Name</span>
+                <span class="dt-value" data-field="name">--</span>
+              </div>
+              <div class="dt-row">
+                <span class="dt-label">Machine Type</span>
+                <span class="dt-value" data-field="type">--</span>
+              </div>
+              <div class="dt-row">
+                <span class="dt-label">Description</span>
+                <span class="dt-value" data-field="description">--</span>
+              </div>
+              <div class="dt-row">
+                <span class="dt-label">Operating Limits</span>
+                <span class="dt-value" data-field="operatingLimits">--</span>
+              </div>
+            </div>
+            <div class="dt-actions">
+              <button id="edit-limits-btn" class="btn">Edit Limits</button>
+              <button id="save-limits-btn" class="btn btn-primary hidden">Save Limits</button>
+              <button id="cancel-limits-btn" class="btn hidden">Cancel</button>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Manual Analysis Overlay -->
+  <div id="manual-overlay" class="overlay hidden">
+    <div class="overlay-content">
+      <div class="spinner"></div>
+      <p>Gemini AI analyzing manual...</p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+

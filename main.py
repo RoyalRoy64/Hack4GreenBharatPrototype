@@ -1,7 +1,38 @@
 from typing import Tuple
 from datetime import datetime
 import pathway as pw
+from database.db import get_manual_parsed_thresholds, save_alert
 
+# inside your sensor processing / alerting function (pseudocode):
+def evaluate_sensor_row(machine_id, temperature, vibration, sound_db, row_meta=None):
+    # fetch any manual-derived thresholds
+    t = get_manual_parsed_thresholds(machine_id) or {}
+    temp_max = t.get("temp_max")
+    temp_min = t.get("temp_min")
+    sound_th = t.get("sound_db")
+
+    # Normalize None fallback to your original static thresholds (configured in config.py)
+    from config import DEFAULT_TEMP_MAX, DEFAULT_TEMP_MIN, DEFAULT_SOUND_DB
+
+    if temp_max is None:
+        temp_max = DEFAULT_TEMP_MAX
+    if temp_min is None:
+        temp_min = DEFAULT_TEMP_MIN
+    if sound_th is None:
+        sound_th = DEFAULT_SOUND_DB
+
+    # now evaluate
+    alerts = []
+    if temperature is not None and temp_max is not None and temperature > temp_max:
+        alerts.append(("critical", f"temperature {temperature} > {temp_max}"))
+    if temperature is not None and temp_min is not None and temperature < temp_min:
+        alerts.append(("warning", f"temperature {temperature} < {temp_min}"))
+    if sound_db is not None and sound_th is not None and sound_db > sound_th:
+        alerts.append(("warning", f"sound {sound_db} dB > {sound_th} dB"))
+
+    for level, msg in alerts:
+        save_alert(machine_id, level, msg, meta={"row": row_meta})
+    return alerts
 
 # ================= CONFIG =================
 
@@ -80,9 +111,9 @@ def main():
     alerts, emissions, status = process_sensor_stream()
 
     # # Print outputs to console
-    pw.io.print(alerts)
-    pw.io.print(emissions)
-    pw.io.print(status)
+    # pw.io.print(alerts)
+    # pw.io.print(emissions)
+    # pw.io.print(status)
 
     print("[INFO] Running streaming engine...")
     pw.run()
