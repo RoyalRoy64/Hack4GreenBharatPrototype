@@ -5,4 +5,5 @@ pandas
 python-multipart
 pathway
 google-generativeai
-#sse_starlette
+google-cloud-aiplatform
+sse-starlette

@@ -64,15 +64,25 @@
     }
   }
 
-  function openSensorStream(onMessage) {
+  const sensorListeners = [];
+  const alertListeners = [];
+
+  function addSensorListener(fn) {
+    sensorListeners.push(fn);
+  }
+
+  function addAlertListener(fn) {
+    alertListeners.push(fn);
+  }
+
+  function startSensorStream() {
+    if (sensorSource) return;
     try {
       sensorSource = new EventSource("/api/stream/sensors");
       activeSSECount++;
       updateConnectionIndicator();
       sensorSource.onmessage = (event) => {
-        if (typeof onMessage === "function") {
-          onMessage(event);
-        }
+        sensorListeners.forEach(fn => fn(event));
       };
       sensorSource.onerror = () => {
         sensorSource.close();
@@ -80,29 +90,28 @@
         activeSSECount = Math.max(0, activeSSECount - 1);
         updateConnectionIndicator();
         // simple retry with delay
-        setTimeout(() => openSensorStream(onMessage), 5000);
+        setTimeout(startSensorStream, 5000);
       };
     } catch (e) {
       console.error("Error opening sensor stream", e);
     }
   }
 
-  function openAlertStream(onMessage) {
+  function startAlertStream() {
+    if (alertSource) return;
     try {
       alertSource = new EventSource("/api/stream/alerts");
       activeSSECount++;
       updateConnectionIndicator();
       alertSource.onmessage = (event) => {
-        if (typeof onMessage === "function") {
-          onMessage(event);
-        }
+        alertListeners.forEach(fn => fn(event));
       };
       alertSource.onerror = () => {
         alertSource.close();
         alertSource = null;
         activeSSECount = Math.max(0, activeSSECount - 1);
         updateConnectionIndicator();
-        setTimeout(() => openAlertStream(onMessage), 5000);
+        setTimeout(startAlertStream, 5000);
       };
     } catch (e) {
       console.error("Error opening alert stream", e);
@@ -219,12 +228,12 @@
       btn.addEventListener("click", () => {
         const machineId = btn.getAttribute("data-machine-id");
         const param = encodeURIComponent(machineId || "");
-        window.location.href = `diagnostics.html?machine=${param}`;
+        window.location.hash = `#diagnostics?machine=${param}`;
       });
     });
 
     // SSE handlers
-    openSensorStream((event) => {
+    addSensorListener((event) => {
       let payload;
       try {
         payload = JSON.parse(event.data);
@@ -268,7 +277,7 @@
       }
     });
 
-    openAlertStream((event) => {
+    addAlertListener((event) => {
       let payload;
       try {
         payload = JSON.parse(event.data);
@@ -278,6 +287,13 @@
       const severity = (payload.severity || "").toUpperCase();
       const machine = payload.machine || "UNKNOWN";
       const message = payload.message || "Alert";
+
+      const existingIdx = tasks.findIndex(
+        (t) => t.machine === machine && t.message === message
+      );
+      if (existingIdx !== -1) {
+        tasks.splice(existingIdx, 1);
+      }
 
       tasks.unshift({
         machine,
@@ -299,7 +315,21 @@
 
   // ---------- Diagnostics Page ----------
   function initDiagnostics() {
-    const urlParams = new URLSearchParams(window.location.search);
+    const hashSplit = window.location.hash.split('?');
+    const urlParams = new URLSearchParams(hashSplit[1] || "");
+    
+    // Support hash change query parameter updates
+    window.addEventListener("hashchange", () => {
+      if (window.location.hash.startsWith("#diagnostics?machine=")) {
+        const newHashParams = new URLSearchParams(window.location.hash.split('?')[1] || "");
+        const newMachineId = newHashParams.get("machine");
+        if (newMachineId && newMachineId !== currentMachineId) {
+          currentMachineId = newMachineId;
+          renderMachineList();
+          fetchDigitalTwin();
+        }
+      }
+    });
     const initialMachineParam = urlParams.get("machine");
     const machineListEl = document.getElementById("machine-list");
     const dropzone = document.getElementById("pdf-dropzone");
@@ -658,7 +688,7 @@ async function uploadFile(file) {
     }
 
     // SSE sensors -> charts + thresholds
-    openSensorStream((event) => {
+    addSensorListener((event) => {
       let payload;
       try {
         payload = JSON.parse(event.data);
@@ -696,7 +726,7 @@ async function uploadFile(file) {
       }
     });
 
-    openAlertStream((event) => {
+    addAlertListener((event) => {
       let payload;
       try {
         payload = JSON.parse(event.data);
@@ -768,21 +798,52 @@ async function uploadFile(file) {
         const cellKey = formatDateKey(currentYear, currentMonth, dateNum);
         const dayTasks = tasks.filter((t) => t.date === cellKey);
 
-        const dotRow = document.createElement("div");
-        dotRow.className = "dot-row";
+        // Highlight today
+        if (cellKey === formatDateKey(today.getFullYear(), today.getMonth(), today.getDate())) {
+            cell.classList.add("today");
+            dateSpan.style.backgroundColor = "rgba(59, 130, 246, 0.5)"; // Blue highlight
+            dateSpan.style.borderRadius = "50%";
+            dateSpan.style.width = "24px";
+            dateSpan.style.height = "24px";
+            dateSpan.style.display = "flex";
+            dateSpan.style.alignItems = "center";
+            dateSpan.style.justifyContent = "center";
+        }
+
+        const tasksContainer = document.createElement("div");
+        tasksContainer.className = "cell-tasks";
+        tasksContainer.style.marginTop = "4px";
+        tasksContainer.style.display = "flex";
+        tasksContainer.style.flexDirection = "column";
+        tasksContainer.style.gap = "2px";
+        tasksContainer.style.overflow = "hidden";
+
         dayTasks.forEach((t) => {
-          const dot = document.createElement("div");
-          dot.className = "task-dot";
+          const taskLabel = document.createElement("div");
+          taskLabel.style.fontSize = "9px";
+          taskLabel.style.padding = "2px 4px";
+          taskLabel.style.borderRadius = "3px";
+          taskLabel.style.whiteSpace = "nowrap";
+          taskLabel.style.textOverflow = "ellipsis";
+          taskLabel.style.overflow = "hidden";
+          
           if (t.severity === "CRITICAL") {
-            dot.classList.add("task-dot-red");
+            taskLabel.style.backgroundColor = "rgba(239, 68, 68, 0.2)";
+            taskLabel.style.color = "#fca5a5";
+            taskLabel.style.border = "1px solid rgba(239, 68, 68, 0.3)";
           } else if (t.severity === "WARNING") {
-            dot.classList.add("task-dot-yellow");
+            taskLabel.style.backgroundColor = "rgba(234, 179, 8, 0.2)";
+            taskLabel.style.color = "#fde047";
+            taskLabel.style.border = "1px solid rgba(234, 179, 8, 0.3)";
           } else {
-            dot.classList.add("task-dot-green");
+            taskLabel.style.backgroundColor = "rgba(34, 197, 94, 0.2)";
+            taskLabel.style.color = "#86efac";
+            taskLabel.style.border = "1px solid rgba(34, 197, 94, 0.3)";
           }
-          dotRow.appendChild(dot);
+          taskLabel.textContent = `${t.machine}: ${t.task}`;
+          tasksContainer.appendChild(taskLabel);
         });
-        cell.appendChild(dotRow);
+        cell.appendChild(tasksContainer);
 
         cell.addEventListener("click", () => {
           openDayModal(cellKey, dayTasks);
@@ -1054,15 +1115,54 @@ async function uploadFile(file) {
   }
 
   // ---------- Page Router ----------
-  if (page === "dashboard") {
+  function handleHashChange() {
+    let hash = window.location.hash || "#dashboard";
+    // If hash contains query params, strip them for routing
+    const target = hash.substring(1).split("?")[0];
+
+    // Hide all views
+    document.querySelectorAll(".view-section").forEach(el => {
+      el.style.display = "none";
+    });
+
+    // Update nav links
+    document.querySelectorAll(".nav-link").forEach(el => {
+      el.classList.remove("active");
+      const targetHash = el.getAttribute("href");
+      if (targetHash === "#" + target) {
+        el.classList.add("active");
+      }
+    });
+
+    // Show target view
+    const view = document.getElementById(`view-${target}`);
+    if (view) {
+      view.style.display = ""; // default display
+    } else {
+      // fallback
+      const fallback = document.getElementById("view-dashboard");
+      if (fallback) fallback.style.display = "";
+    }
+  }
+
+  if (page === "spa") {
+    // Initialize all views once
     initDashboard();
-  } else if (page === "diagnostics") {
     initDiagnostics();
-  } else if (page === "maintenance") {
     initMaintenance();
+
+    // Start single SSE connections
+    startSensorStream();
+    startAlertStream();
+
+    // Listen to hash changes
+    window.addEventListener("hashchange", handleHashChange);
+    
+    // Trigger initially
+    handleHashChange();
   } else {
-    // still open SSE for global banner if any page unexpectedly missing data-page
-    openAlertStream((event) => {
+    // Fallback for non-SPA
+    addAlertListener((event) => {
       let payload;
       try {
         payload = JSON.parse(event.data);
@@ -1074,6 +1174,7 @@ async function uploadFile(file) {
         showEmergencyBanner(payload.message || "Alert");
       }
     });
+    startAlertStream();
   }
 })();
 

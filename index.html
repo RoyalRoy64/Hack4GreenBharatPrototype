@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EcoSync Sentinel - Dashboard</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body data-page="dashboard">
+
+<body data-page="spa">
   <!-- Emergency Banner -->
   <div id="emergency-banner" class="emergency-banner hidden">
     <div class="emergency-banner-content">
@@ -23,15 +26,10 @@
         <span class="sidebar-title">EcoSync<br />Sentinel</span>
       </div>
       <nav class="sidebar-nav">
-        <a href="/" class="nav-link active">Dashboard</a>
-        <a href="/diagnostics" class="nav-link">Asset Diagnostics</a>
-        <a href="/maintenance" class="nav-link">Maintenance &amp; Inventory</a>
+        <a href="#dashboard" class="nav-link active" data-target="dashboard">Dashboard</a>
+        <a href="#diagnostics" class="nav-link" data-target="diagnostics">Asset Diagnostics</a>
+        <a href="#maintenance" class="nav-link" data-target="maintenance">Maintenance &amp; Inventory</a>
       </nav>
-      <!-- <nav class="sidebar-nav">
-        <a href="index.html" class="nav-link active">Dashboard</a>
-        <a href="diagnostics.html" class="nav-link">Asset Diagnostics</a>
-        <a href="maintenance.html" class="nav-link">Maintenance &amp; Inventory</a>
-      </nav> -->
     </aside>
 
     <div class="main-area">
@@ -53,7 +51,7 @@
       </header>
 
       <!-- Main Dashboard Content -->
-      <main class="content dashboard-content">
+      <main id="view-dashboard" class="content dashboard-content view-section">
         <!-- KPI Tiles -->
         <section class="kpi-grid">
           <div class="kpi-card" data-kpi="health">
@@ -78,11 +76,11 @@
         <section class="workflow-section">
           <h2 class="section-title">Machine Workflow</h2>
           <div class="workflow-diagram">
-            <button class="node node-green" data-machine-id="CNC_1">CNC_1</button>
+            <button class="node node-green" data-machine-id="CNC_1">CNC1_Roughing</button>
             <span class="workflow-arrow">→</span>
-            <button class="node node-green" data-machine-id="Conveyor_2">Conveyor_2</button>
+            <button class="node node-green" data-machine-id="Heater_1">Localized Induction Heating</button>
             <span class="workflow-arrow">→</span>
-            <button class="node node-green" data-machine-id="Packaging_3">Packaging_3</button>
+            <button class="node node-green" data-machine-id="CNC_2">CNC2_Turning</button>
           </div>
         </section>
 
@@ -107,10 +105,155 @@
           </div>
         </section>
       </main>
+
+      <!-- Asset Diagnostics Content -->
+      <main id="view-diagnostics" class="content diagnostics-content view-section" style="display: none;">
+        <div class="diagnostics-grid">
+          <!-- Left Column: Machine List + Upload -->
+          <section class="diag-column diag-left">
+            <h2 class="section-title">Machines</h2>
+            <ul id="machine-list" class="machine-list"></ul>
+
+            <div class="upload-wrapper">
+              <div class="upload-section">
+                <h2 class="section-title">Upload Machine Manual (PDF)</h2>
+                <div id="pdf-dropzone" class="dropzone">
+                  <p>Drag &amp; drop PDF here or click to browse</p>
+                  <input type="file" id="pdf-input" accept="application/pdf" hidden />
+                </div>
+              </div>
+
+              <div id="llm-summary-container" class="llm-summary-container hidden">
+                <h2 class="section-title">LLM Parsed Summary</h2>
+                <div class="llm-summary-box">
+                  <pre id="llm-summary-content">Waiting for upload...</pre>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Center Column: Charts -->
+          <section class="diag-column diag-center">
+            <h2 class="section-title">Live Sensor Charts</h2>
+            <div class="chart-panel">
+              <h3>Temperature</h3>
+              <canvas id="chart-temperature"></canvas>
+            </div>
+            <div class="chart-panel">
+              <h3>Vibration</h3>
+              <canvas id="chart-vibration"></canvas>
+            </div>
+            <div class="chart-panel">
+              <h3>Sound (dB)</h3>
+              <canvas id="chart-sound"></canvas>
+            </div>
+          </section>
+
+          <!-- Right Column: Digital Twin Specs -->
+          <section class="diag-column diag-right">
+            <h2 class="section-title">Digital Twin Specs</h2>
+            <div id="digital-twin" class="digital-twin">
+              <div class="dt-row">
+                <span class="dt-label">Machine Name</span>
+                <span class="dt-value" data-field="name">--</span>
+              </div>
+              <div class="dt-row">
+                <span class="dt-label">Machine Type</span>
+                <span class="dt-value" data-field="type">--</span>
+              </div>
+              <div class="dt-row">
+                <span class="dt-label">Description</span>
+                <span class="dt-value" data-field="description">--</span>
+              </div>
+              <div class="dt-row">
+                <span class="dt-label">Operating Limits</span>
+                <span class="dt-value" data-field="operatingLimits">--</span>
+              </div>
+            </div>
+            <div class="dt-actions">
+              <button id="edit-limits-btn" class="btn">Edit Limits</button>
+              <button id="save-limits-btn" class="btn btn-primary hidden">Save Limits</button>
+              <button id="cancel-limits-btn" class="btn hidden">Cancel</button>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- Maintenance Content -->
+      <main id="view-maintenance" class="content maintenance-content view-section" style="display: none;">
+        <div class="maintenance-grid">
+          <!-- Left: Maintenance Calendar + Task List -->
+          <section class="maint-column maint-left">
+            <h2 class="section-title">Maintenance Calendar</h2>
+            <div class="calendar-header">
+              <span id="calendar-month-label">Month</span>
+            </div>
+            <div id="calendar-grid" class="calendar-grid">
+              <!-- Calendar cells via JS -->
+            </div>
+
+            <div class="task-list-header">
+              <h2 class="section-title">Scheduled Tasks</h2>
+              <label class="sort-label">
+                Sort by
+                <select id="task-sort">
+                  <option value="time">Time Remaining</option>
+                  <option value="machine">Machine</option>
+                </select>
+              </label>
+            </div>
+            <div id="maintenance-task-list" class="task-list">
+              <!-- Tasks via JS -->
+            </div>
+          </section>
+
+          <!-- Right: Inventory Table -->
+          <section class="maint-column maint-right">
+            <div class="inventory-header">
+              <h2 class="section-title">Inventory</h2>
+              <button id="generate-bom-btn" class="btn btn-primary">Generate Bill of Materials</button>
+            </div>
+            <div class="table-wrapper">
+              <table id="inventory-table" class="inventory-table">
+                <thead>
+                  <tr>
+                    <th>Select</th>
+                    <th>Part Name</th>
+                    <th>Part Number</th>
+                    <th>Current Stock</th>
+                    <th>Minimum Required</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Rows via JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Manual Analysis Overlay from diagnostics.html -->
+  <div id="manual-overlay" class="overlay hidden">
+    <div class="overlay-content">
+      <div class="spinner"></div>
+      <p>Gemini AI analyzing manual...</p>
+    </div>
+  </div>
+
+  <!-- Maintenance Day Modal from maintenance.html -->
+  <div id="day-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="day-modal-close" class="modal-close">&times;</button>
+      <h2>Maintenance Tasks</h2>
+      <div id="day-modal-body"></div>
     </div>
   </div>
 
   <script src="app.js"></script>
 </body>
-</html>
 
+</html>

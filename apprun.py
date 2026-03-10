@@ -110,6 +110,15 @@ async def start_server():
 # MAIN ENTRY
 async def main():
     print("⚡ Booting EcoSync Unified Runtime")
+    
+    # Clean up old data from previous runs
+    print("🧹 Clearing previous alerts and sensor queues...")
+    if DATA_FILE.exists():
+        DATA_FILE.unlink()
+        
+    alerts_file = DATA_DIR / "alerts.jsonl"
+    if alerts_file.exists():
+        alerts_file.unlink()
 
     tasks = []
 
