@@ -1,6 +1,7 @@
 import asyncio
 import json
 import csv
+import datetime
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, Request, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
@@ -100,21 +101,29 @@ async def upload_manual(file: UploadFile):
     # 1. Save the uploaded PDF temporarily
     file_path = f"data/manuals/{file.filename}"
     Path("data/manuals").mkdir(parents=True, exist_ok=True)
-    
+    # print(file_path)
     with open(file_path, "wb") as f:
         f.write(await file.read())
-        
-    # 2. Pass to Gemini 2.5 Pro (from gemini_llm.py)
-    extracted_data = extract_manual_data(file_path)
-    
-    # Save the processed JSON
+    print('preeeeextractssss-------------------------------------------------------------------------',file_path)
+
     json_dir = Path("data/manuals/manuals_json")
     json_dir.mkdir(parents=True, exist_ok=True)
     json_path = json_dir / f"{Path(file.filename).stem}.json"
-    
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(extracted_data, f, indent=2)
+
+    if json_path.exists():
+        print(f"Skipping extraction, reading from existing JSON: {json_path}")
+        with open(json_path, "r", encoding="utf-8") as f:
+            extracted_data = json.load(f)
+    else:
+        # 2. Pass to Gemini 2.5 Pro (from gemini_llm.py)
+        extracted_data = extract_manual_data(file_path)
+
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump(extracted_data, f, indent=2)
     # 3. Save the results to the SQLite Database
+        
+    print('extracted-------------------------------------------------------------------------',file_path)
+    
     conn = get_db()
     machine_id = extracted_data["machine_detail"]["machine_name"].replace(" ", "_")
     
@@ -133,8 +142,36 @@ async def upload_manual(file: UploadFile):
     ))
     conn.commit()
     
-    # (Optional: Add logic here to loop through extracted_data["spare_parts"] 
-    # and insert them into the spare_parts table)
+    # Clear existing tasks and parts for this machine to avoid duplicates from multiple uploads
+    conn.execute("DELETE FROM maintenance_tasks WHERE machine_id = ?", (machine_id,))
+    conn.execute("DELETE FROM spare_parts WHERE machine_id = ?", (machine_id,))
+    
+    today = datetime.date.today()
+    for task_data in extracted_data.get("maintenance", []):
+        task_desc = task_data.get("task", "")
+        interval = task_data.get("interval", "")
+        period_days = task_data.get("period", 30)
+        scheduled_date = (today + datetime.timedelta(days=period_days)).strftime("%Y-%m-%d")
+        
+        conn.execute('''
+            INSERT INTO maintenance_tasks (machine_id, task, interval, scheduled_date, severity)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (machine_id, task_desc, interval, scheduled_date, 'INFO'))
+        
+    for part_data in extracted_data.get("spare_parts", []):
+        conn.execute('''
+            INSERT INTO spare_parts (machine_id, name, part_number, description, current_stock, minimum_required)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (
+            machine_id,
+            part_data.get("name", ""),
+            part_data.get("part_number", ""),
+            part_data.get("description", ""),
+            0, # Default stock
+            part_data.get("minimum_required_parts", 1)
+        ))
+        
+    conn.commit()
     
     return {"status": "success", "machine_id": machine_id, "data": extracted_data}
 

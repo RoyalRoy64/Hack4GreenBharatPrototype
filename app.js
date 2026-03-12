@@ -176,6 +176,9 @@
     function renderTasks() {
       if (!taskListEl) return;
       taskListEl.innerHTML = "";
+
+      let criticalCount = tasks.filter((t) => t.severity === "CRITICAL").length;
+      animateKpi("criticalAlerts", String(criticalCount));
       tasks.forEach((task) => {
         const item = document.createElement("div");
         item.className = "task-item";
@@ -303,9 +306,6 @@
       // keep limited history
       if (tasks.length > 30) tasks = tasks.slice(0, 30);
       renderTasks();
-
-      let criticalCount = tasks.filter((t) => t.severity === "CRITICAL").length;
-      animateKpi("criticalAlerts", String(criticalCount));
 
       if (severity === "CRITICAL") {
         showEmergencyBanner(message);

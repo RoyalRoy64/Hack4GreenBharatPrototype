@@ -158,8 +158,8 @@ def extract_manual_data(pdf_file_path: str) -> dict:
 
 # --- Execution and Saving Logic ---
 if __name__ == "__main__":
-    pdf_filename = "Maintenance-Guide-for-KVT_KDT_DVT.pdf"
-    output_filename = "parsed_becker_pump_data02.json"
+    pdf_filename = "data/manuals/Maintenance-Guide-for-KVT_KDT_DVT.pdf"
+    output_filename = "services/parsed_becker_pump_data.json"
 
     print(f"Starting extraction for {pdf_filename}. This may take 10-20 seconds...")
 

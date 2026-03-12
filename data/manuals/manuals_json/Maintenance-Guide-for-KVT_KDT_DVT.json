@@ -1,0 +1,104 @@
+{
+  "machine_detail": {
+    "machine_name": "Becker KVT/KDT/DVT Series",
+    "machine_type": "Rotary Vane Vacuum Pump",
+    "machine_description": "A series of oil-less (dry) rotary vane displacement pumps designed for industrial vacuum applications. These pumps use self-lubricating carbon vanes and require periodic maintenance of filters, vanes, and bearings."
+  },
+  "operating_temperature": {
+    "min": 5.0,
+    "max": 40.0,
+    "unit": "Celsius"
+  },
+  "sound_level_db": 72.0,
+  "miscellaneous_parameters": [
+    {
+      "parameter_name": "Vane Minimum Height (KVT/KDT 3.60)",
+      "min_value": 21.0,
+      "max_value": null,
+      "unit": "mm"
+    },
+    {
+      "parameter_name": "Vane Minimum Height (KVT/KDT 3.80)",
+      "min_value": 26.0,
+      "max_value": null,
+      "unit": "mm"
+    },
+    {
+      "parameter_name": "Vane Minimum Height (Picchio 2200)",
+      "min_value": 31.0,
+      "max_value": null,
+      "unit": "mm"
+    }
+  ],
+  "maintenance": [
+    {
+      "task": "Check and clean air intake filter. Replace if clogged.",
+      "interval": "Every 40-200 Hours",
+      "period": 8
+    },
+    {
+      "task": "Replace air intake filter annually, regardless of condition.",
+      "interval": "Annually",
+      "period": 365
+    },
+    {
+      "task": "Grease bearings.",
+      "interval": "Every 2000 Hours",
+      "period": 83
+    },
+    {
+      "task": "Inspect vanes for minimum height, improper wear, or chipping.",
+      "interval": "Every 3,000 Hours",
+      "period": 125
+    },
+    {
+      "task": "Replace dust separation element.",
+      "interval": "Every 3,000 Hours",
+      "period": 125
+    }
+  ],
+  "spare_parts": [
+    {
+      "name": "Maintenance Kit for KVT/KDT 3.60",
+      "part_number": "338030M0000",
+      "description": "Comprehensive kit for routine maintenance. Includes Carbon Vanes, Grease, and Filters.",
+      "minimum_required_parts": 1
+    },
+    {
+      "name": "Maintenance Kit for DVT 3.60",
+      "part_number": "338022M0000",
+      "description": "Comprehensive kit for routine maintenance. Includes Carbon Vanes, Grease, and Filters.",
+      "minimum_required_parts": 1
+    },
+    {
+      "name": "Carbon Vane Set",
+      "part_number": "to be specified manually",
+      "description": "Critical wear part included in maintenance kits. Replace when worn to minimum height.",
+      "minimum_required_parts": 2
+    },
+    {
+      "name": "Air Intake Filter",
+      "part_number": "to be specified manually",
+      "description": "Standard wear part included in maintenance kits. Replace frequently.",
+      "minimum_required_parts": 4
+    },
+    {
+      "name": "Dust Separation Cartridge",
+      "part_number": "to be specified manually",
+      "description": "Internal filter element replaced during major service.",
+      "minimum_required_parts": 2
+    },
+    {
+      "name": "Grease Tube",
+      "part_number": "96000002300",
+      "description": "Specific grease for pump bearings.",
+      "minimum_required_parts": 1
+    },
+    {
+      "name": "Filter Housing Rubber Gasket",
+      "part_number": "to be specified manually",
+      "description": "Seals the filter housing. Can be damaged during filter changes, causing vacuum/pressure loss.",
+      "minimum_required_parts": 2
+    }
+  ]
+}
