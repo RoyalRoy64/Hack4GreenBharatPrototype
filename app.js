@@ -457,7 +457,7 @@
         chart.data.labels.shift();
         chart.data.datasets[0].data.shift();
       }
-      chart.update("none");
+      chart.update();
     }
 
     // Machines list
@@ -696,6 +696,14 @@ async function uploadFile(file) {
         return;
       }
       const targetMachine = payload.machineId || payload.machine || null;
+      
+      // If we don't have a specific machine selected yet, lock onto the first one that streams in
+      if (!currentMachineId && targetMachine) {
+          currentMachineId = targetMachine;
+          renderMachineList();
+          fetchDigitalTwin();
+      }
+
       if (currentMachineId && targetMachine && targetMachine !== currentMachineId) {
         return;
       }
