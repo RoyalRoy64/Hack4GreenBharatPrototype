@@ -73,21 +73,21 @@ Core value propositions:
 
 ```mermaid
 graph TD
-    A[apprun.py Data Generator] -->|writes rows| B[data/sensors.csv]
-    B -->|tailed by| C[pathwaydata.py (stream engine)]
-    C -->|checks DB limits| D[(SQLite DB)]
-    C -->|writes anomalies| E[data/alerts.jsonl]
+    A["apprun.py Data Generator"] -->|writes rows| B["data/sensors.csv"]
+    B -->|tailed by| C["pathwaydata.py stream engine"]
+    C -->|checks DB limits| D["SQLite Database"]
+    C -->|writes anomalies| E["data/alerts.jsonl"]
     
-    B -->|SSE| F[server.py Sensors Stream]
-    E -->|SSE| G[server.py Alerts Stream]
+    B -->|SSE| F["server.py Sensors Stream"]
+    E -->|SSE| G["server.py Alerts Stream"]
     
-    F -->|pushes| H[app.js Frontend (index.html)]
+    F -->|pushes| H["Frontend app.js"]
     G -->|pushes| H
-    H -->|renders| I[Chart.js / KPI / Dashboard]
+    H -->|renders| I["Chart.js Dashboard"]
     
-    J[User PDF Upload] -->|POST /api/manuals/upload| K[server.py manual endpoint]
-    K -->|calls parsing| L[services/gemini_llm.py]
-    L -->|structured JSON| M[database/machines & maintenance tables]
+    J["User PDF Upload"] -->|POST /api/manuals/upload| K["server.py Manual Endpoint"]
+    K -->|calls parsing| L["services/gemini_llm.py"]
+    L -->|structured JSON| M["database machines and maintenance tables"]
     M --> D
 ```
 
