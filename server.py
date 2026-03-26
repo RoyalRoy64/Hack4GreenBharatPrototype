@@ -104,7 +104,6 @@ async def upload_manual(file: UploadFile):
     # print(file_path)
     with open(file_path, "wb") as f:
         f.write(await file.read())
-    print('preeeeextractssss-------------------------------------------------------------------------',file_path)
 
     json_dir = Path("data/manuals/manuals_json")
     json_dir.mkdir(parents=True, exist_ok=True)
@@ -112,6 +111,7 @@ async def upload_manual(file: UploadFile):
 
     if json_path.exists():
         print(f"Skipping extraction, reading from existing JSON: {json_path}")
+        await asyncio.sleep(3)
         with open(json_path, "r", encoding="utf-8") as f:
             extracted_data = json.load(f)
     else:
@@ -121,8 +121,6 @@ async def upload_manual(file: UploadFile):
         with open(json_path, "w", encoding="utf-8") as f:
             json.dump(extracted_data, f, indent=2)
     # 3. Save the results to the SQLite Database
-        
-    print('extracted-------------------------------------------------------------------------',file_path)
     
     conn = get_db()
     machine_id = extracted_data["machine_detail"]["machine_name"].replace(" ", "_")
